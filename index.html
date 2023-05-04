@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Go wasm sample</title>
+  </head>
+  <body>
+    <input type="text" name="name" id="nameInput" />
+    <button id="repoBtn">Get All Repositories</button>
+
+    <div id="repos"></div>
+
+    <script src="./wasm_exec.js"></script>
+
+    <script>
+      (async () => {
+        const go = new Go();
+        const { instance } = await WebAssembly.instantiateStreaming(
+          fetch("main.wasm"),
+          go.importObject
+        );
+        await go.run(instance);
+      })();
+    </script>
+
+    <script>
+
+      document.getElementById("repoBtn").onclick = async (e) => {
+        const nameInput = document.getElementById("nameInput");
+        console.log("repoBtn clicked!!");
+
+        e.preventDefault();
+        if (nameInput.value < 1) {
+          return;
+        }
+
+        console.log("repositories calling...");
+        const repos = repositories(nameInput.value);
+        const repo = await repos;
+        console.log(repo);
+
+        const reposDiv = document.getElementById("repos");
+        reposDiv.innerHTML = repo.result.join("<br />");
+      };
+    </script>
+  </body>
+</html>
